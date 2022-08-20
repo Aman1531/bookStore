@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+<body class="container">
+
+<header>
+<h1 align="center" > Book store app </h1>
+</header>
+
+<main>
+  <div align='right'>
+    <form action='/sort' method="post">
+      <input  type="submit" value="Sort by title"/>
+    </form><br>
+    <form action='/isbn' method="post">
+      <input type="text" name="isbn" /><br>
+      <input  type="submit" value="ISBN search"/>
+    </form>
+    <form action='/author' method="post">
+      <input type="text" name="author" /><br>
+      <input  type="submit" value="Author search"/>
+    </form>
+    </div>
+  <div align="center">
+    <h2 ><u>Magazines</u></h2>
+    <a href="/addMagazine">Add +</a>
+<table id="mag" class="table table-inverse">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>ISBN</th>
+      <th>Authors</th>
+      <th>PublishedAt</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% for(var i=0; i < magazines.length; i++) { %>
+    <tr>
+      <td><%= magazines[i].title %></td>
+      <td><%= magazines[i].isbn %></td>
+ <td><ul>
+        <% magazines[i].authors.forEach(function(item,index){ %>
+            <li> <%= item %> </li>
+        <% }) %>
+    </ul></td>
+      <td><p><%= magazines[i].publishedAt.toLocaleDateString() %> </p></td>
+    </tr>
+    <% } %>
+  </tbody>
+</table>
+
+<button id="magExp">Export</button>
+</div>
+  <div align="center">
+    <h2 align="center"><u>Books</u></h2>
+<table id="books" class="table table-inverse">
+    <a href="/addBook">Add +</a>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>ISBN</th>
+      <th>Authors</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% for(var i=0; i < books.length; i++) { %>
+    <tr>
+      <td><%= books[i].title %></td>
+      <td><%= books[i].isbn %></td>
+ <td><ul>
+        <% books[i].authors.forEach(function(item,index){ %>
+            <li> <%= item %> </li>
+        <% }) %>
+    </ul></td>
+      <td><p><%= books[i].description %> </p></td>
+    </tr>
+    <% } %>
+  </tbody>
+</table>
+
+<button align="center" id="bookExp">Export</button>
+</div>
+
+</main>
+
+<footer>
+</footer>
+<script>
+  const toCsv = function (table) {
+    // Query all rows
+    const rows = table.querySelectorAll('tr');
+
+    return [].slice
+        .call(rows)
+        .map(function (row) {
+            // Query all cells
+            const cells = row.querySelectorAll('th,td');
+            return [].slice
+                .call(cells)
+                .map(function (cell) {
+                    let txt = cell.textContent
+                   let texts = cell.getElementsByTagName("li");
+                    if (texts.length)
+                        txt=""
+                        for(var i=0;i < texts.length; i++){
+                            txt+= texts[i].textContent
+                            if (i < texts.length-1)
+                                txt += ','
+                        }
+                    return txt;
+                })
+                .join(';');
+        })
+        .join('\n');
+};
+  const download = function (text, fileName) {
+    const link = document.createElement('a');
+    link.setAttribute('href', `data:text/csv;charset=utf-8,${encodeURIComponent(text)}`);
+    link.setAttribute('download', fileName);
+
+    link.style.display = 'none';
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+};
+  
+const mag = document.getElementById('mag');
+const magBtn = document.getElementById('magExp');
+
+magBtn.addEventListener('click', function () {
+    const csv = toCsv(mag);
+    download(csv, 'magazines.csv');
+});
+
+const book = document.getElementById('books');
+const bookBtn = document.getElementById('bookExp');
+
+bookBtn.addEventListener('click', function () {
+    const csv = toCsv(book);
+    download(csv, 'books.csv');
+});
+  </script>
+</body>
+</html>
